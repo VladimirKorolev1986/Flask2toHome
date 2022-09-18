@@ -1,14 +1,15 @@
 from api import Resource, reqparse, db, auth
 from api.models.author import AuthorModel
 from api.models.quote import QuoteModel
-from api.schemas.quote import  quote_schema, quotes_schema
+from api.schemas.quote import quote_schema, quotes_schema
 from flask import g
+
 
 class QuoteListResource(Resource):
     def get(self, author_id=None):
         if author_id is None:  # Если запрос приходит по url: /quotes
             quotes = QuoteModel.query.all()
-            return quotes_schema.dump(quotes)  # Возвращаем ВСЕ цитаты
+            return quotes_schema.dump(quotes), 200  # Возвращаем ВСЕ цитаты
 
         author = AuthorModel.query.get(author_id)
         if author is None:
@@ -18,6 +19,7 @@ class QuoteListResource(Resource):
 
     @auth.login_required
     def post(self, author_id):
+        print(g.user.username)
         parser = reqparse.RequestParser()
         parser.add_argument("text", required=True)
         quote_data = parser.parse_args()
@@ -49,7 +51,7 @@ class QuoteResource(Resource):
 
         if quote.author.id != author.id:
             return {"Error": "Цитата не принадлежит автору"}, 400
-        return quote.to_dict(), 200
+        return quote_schema.dump(quote), 200
 
     # PUT: /authors/1/quotes/1
     # PUT: /authors/2/quotes/1  <-- 400 "Цитата не принадлежит автору"
