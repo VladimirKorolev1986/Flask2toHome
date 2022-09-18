@@ -25,7 +25,7 @@ class AuthorResource(Resource):
         author = AuthorModel(author_data["name"])
         db.session.add(author)
         db.session.commit()
-        return author.to_dict(), 201
+        return author_schema.dump(author), 201
 
     def put(self, author_id):
         parser = reqparse.RequestParser()
