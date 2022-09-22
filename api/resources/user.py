@@ -11,6 +11,14 @@ class UserResource(Resource):
             return {"error": "User not found"}, 404
         return user_schema.dump(user), 200
 
+    def delete(self, user_id):
+        user = UserModel.query.get(user_id)
+        if user is None:
+            return {"error": "User not found"}, 404
+        db.session.delete(user)
+        db.session.commit()
+        return "", 204
+
 
 # url: /users
 class UsersListResource(Resource):
